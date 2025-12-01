@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Intelligence Platform</title>
+    
+    <!-- Distinctive typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js for visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: #1a1a24;
+            --bg-hover: #22222e;
+            --accent-green: #00ff88;
+            --accent-red: #ff4757;
+            --accent-blue: #4facfe;
+            --accent-purple: #a855f7;
+            --accent-yellow: #fbbf24;
+            --text-primary: #e4e4e7;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --border: #27272a;
+            --glow-green: 0 0 20px rgba(0, 255, 136, 0.3);
+            --glow-red: 0 0 20px rgba(255, 71, 87, 0.3);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* Animated background grid */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 255, 136, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 136, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--bg-primary);
+        }
+        
+        .logo-text h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            background: linear-gradient(90deg, var(--text-primary), var(--accent-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .logo-text span {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+        
+        .stats-bar {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .stat {
+            text-align: right;
+        }
+        
+        .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--accent-green);
+        }
+        
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        
+        /* Ingest Form */
+        .ingest-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .ingest-form {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .ingest-form input {
+            flex: 1;
+            max-width: 200px;
+            padding: 0.75rem 1rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            text-transform: uppercase;
+        }
+        
+        .ingest-form input:focus {
+            outline: none;
+            border-color: var(--accent-green);
+            box-shadow: var(--glow-green);
+        }
+        
+        .ingest-form input::placeholder {
+            color: var(--text-muted);
+            text-transform: none;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+            border: none;
+            border-radius: 8px;
+            color: var(--bg-primary);
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--glow-green);
+        }
+        
+        .ingest-status {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        /* Grid Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        /* Company Cards */
+        .company-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .company-card:hover {
+            border-color: var(--accent-green);
+            transform: translateY(-4px);
+        }
+        
+        .company-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .company-info h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .company-symbol {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--accent-green);
+            background: rgba(0, 255, 136, 0.1);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        
+        .company-sector {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+        
+        .sentiment-badge {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            min-width: 80px;
+        }
+        
+        .sentiment-badge.positive {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+        
+        .sentiment-badge.negative {
+            background: rgba(255, 71, 87, 0.1);
+            border: 1px solid rgba(255, 71, 87, 0.3);
+        }
+        
+        .sentiment-badge.neutral {
+            background: rgba(161, 161, 170, 0.1);
+            border: 1px solid rgba(161, 161, 170, 0.3);
+        }
+        
+        .sentiment-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .sentiment-badge.positive .sentiment-value { color: var(--accent-green); }
+        .sentiment-badge.negative .sentiment-value { color: var(--accent-red); }
+        .sentiment-badge.neutral .sentiment-value { color: var(--text-secondary); }
+        
+        .sentiment-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+        }
+        
+        /* Chart Container */
+        .chart-container {
+            height: 120px;
+            margin: 1rem 0;
+            position: relative;
+        }
+        
+        /* News List */
+        .news-list {
+            margin-top: 1rem;
+            border-top: 1px solid var(--border);
+            padding-top: 1rem;
+        }
+        
+        .news-item {
+            display: flex;
+            gap: 0.75rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(39, 39, 42, 0.5);
+        }
+        
+        .news-item:last-child {
+            border-bottom: none;
+        }
+        
+        .news-sentiment {
+            width: 4px;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+        
+        .news-sentiment.positive { background: var(--accent-green); }
+        .news-sentiment.negative { background: var(--accent-red); }
+        .news-sentiment.neutral { background: var(--text-muted); }
+        
+        .news-content {
+            flex: 1;
+        }
+        
+        .news-title {
+            font-size: 0.85rem;
+            line-height: 1.4;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+        
+        .news-meta {
+            display: flex;
+            gap: 0.75rem;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+        
+        .news-classification {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent-purple);
+            background: rgba(168, 85, 247, 0.1);
+            padding: 0.125rem 0.375rem;
+            border-radius: 3px;
+        }
+        
+        /* Company Summary */
+        .company-summary {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            border-left: 3px solid var(--accent-blue);
+        }
+        
+        /* Insights Section */
+        .insights-section {
+            grid-column: 1 / -1;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+        
+        .insights-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .insights-header h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+        
+        .insight-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .insight-card:hover {
+            border-color: var(--accent-purple);
+        }
+        
+        .insight-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+        
+        .insight-symbol {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            color: var(--accent-yellow);
+        }
+        
+        .insight-sentiment {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+        }
+        
+        .insight-text {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        
+        .insight-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+        
+        .tag {
+            font-size: 0.65rem;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 0.25rem 0.5rem;
+            background: rgba(79, 172, 254, 0.1);
+            color: var(--accent-blue);
+            border-radius: 4px;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-muted);
+        }
+        
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        .empty-state p {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .empty-state small {
+            font-size: 0.85rem;
+        }
+        
+        /* Animations */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .loading {
+            animation: pulse 2s infinite;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .stats-bar {
+                width: 100%;
+                justify-content: space-around;
+            }
+            
+            .ingest-form {
+                flex-wrap: wrap;
+            }
+            
+            .ingest-form input {
+                max-width: none;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">CI</div>
+                <div class="logo-text">
+                    <h1>Company Intelligence</h1>
+                    <span>AI-Powered Data Platform</span>
+                </div>
+            </div>
+            <div class="stats-bar">
+                <div class="stat">
+                    <div class="stat-value">{{ total_companies }}</div>
+                    <div class="stat-label">Companies</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">{{ total_articles }}</div>
+                    <div class="stat-label">Articles Analyzed</div>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Ingest Section -->
+        <section class="ingest-section">
+            <form class="ingest-form" id="ingestForm">
+                <input type="text" id="symbolInput" placeholder="Enter ticker (e.g., AAPL)" maxlength="10">
+                <button type="submit" class="btn">Ingest Data</button>
+                <div class="ingest-status" id="ingestStatus"></div>
+            </form>
+        </section>
+        
+        <!-- Main Dashboard Grid -->
+        {% if companies %}
+        <div class="dashboard-grid">
+            {% for company in companies %}
+            <div class="company-card">
+                <div class="company-header">
+                    <div class="company-info">
+                        <h3>{{ company.name }}</h3>
+                        <span class="company-symbol">{{ company.symbol }}</span>
+                        {% if company.sector %}
+                        <div class="company-sector">{{ company.sector }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="sentiment-badge {% if company.avg_sentiment and company.avg_sentiment > 0.1 %}positive{% elif company.avg_sentiment and company.avg_sentiment < -0.1 %}negative{% else %}neutral{% endif %}">
+                        <span class="sentiment-value">
+                            {% if company.avg_sentiment %}
+                            {{ "%.2f"|format(company.avg_sentiment) }}
+                            {% else %}
+                            N/A
+                            {% endif %}
+                        </span>
+                        <span class="sentiment-label">Sentiment</span>
+                    </div>
+                </div>
+                
+                {% if company.enriched_summary %}
+                <div class="company-summary">
+                    {{ company.enriched_summary }}
+                </div>
+                {% endif %}
+                
+                {% if company.stock_data %}
+                <div class="chart-container">
+                    <canvas id="chart-{{ company.symbol }}"></canvas>
+                </div>
+                {% endif %}
+                
+                {% if company.recent_news %}
+                <div class="news-list">
+                    {% for news in company.recent_news[:4] %}
+                    <div class="news-item">
+                        <div class="news-sentiment {% if news.sentiment_label %}{{ news.sentiment_label }}{% else %}neutral{% endif %}"></div>
+                        <div class="news-content">
+                            <div class="news-title">{{ news.title }}</div>
+                            <div class="news-meta">
+                                {% if news.classification %}
+                                <span class="news-classification">{{ news.classification }}</span>
+                                {% endif %}
+                                {% if news.published_at %}
+                                <span>{{ news.published_at.strftime('%b %d, %Y') }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Insights Section -->
+        {% if insights %}
+        <section class="insights-section">
+            <div class="insights-header">
+                <h2>📊 Market Insights</h2>
+            </div>
+            <div class="insights-grid">
+                {% for insight in insights %}
+                <div class="insight-card">
+                    <div class="insight-header">
+                        <span class="insight-symbol">{{ insight.symbol }}</span>
+                        <span class="insight-sentiment" style="color: {% if insight.avg_sentiment > 0 %}var(--accent-green){% elif insight.avg_sentiment < 0 %}var(--accent-red){% else %}var(--text-muted){% endif %}">
+                            {{ "%.2f"|format(insight.avg_sentiment) }}
+                        </span>
+                    </div>
+                    {% if insight.top_insight %}
+                    <div class="insight-text">{{ insight.top_insight }}</div>
+                    {% endif %}
+                    <div class="insight-tags">
+                        {% for classification in insight.recent_classifications %}
+                        <span class="tag">{{ classification }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+        
+        {% else %}
+        <!-- Empty State -->
+        <div class="empty-state">
+            <div class="empty-state-icon">📈</div>
+            <p>No companies tracked yet</p>
+            <small>Enter a stock ticker above to start ingesting data</small>
+        </div>
+        {% endif %}
+    </div>
+    
+    <script>
+        // Handle form submission
+        document.getElementById('ingestForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const symbol = document.getElementById('symbolInput').value.toUpperCase();
+            const status = document.getElementById('ingestStatus');
+            
+            if (!symbol) return;
+            
+            status.textContent = 'Starting pipeline...';
+            status.classList.add('loading');
+            
+            try {
+                const response = await fetch('/api/ingest', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ symbol })
+                });
+                
+                const data = await response.json();
+                status.textContent = data.message;
+                
+                // Poll for status
+                const pollStatus = async () => {
+                    const statusResponse = await fetch(`/api/status/${symbol}`);
+                    const statusData = await statusResponse.json();
+                    
+                    if (statusData.status === 'completed') {
+                        status.textContent = 'Complete! Refreshing...';
+                        status.classList.remove('loading');
+                        setTimeout(() => location.reload(), 1000);
+                    } else if (statusData.status === 'failed') {
+                        status.textContent = 'Failed: ' + (statusData.error || 'Unknown error');
+                        status.classList.remove('loading');
+                    } else {
+                        status.textContent = `Running: ${statusData.current_step || 'processing'}...`;
+                        setTimeout(pollStatus, 2000);
+                    }
+                };
+                
+                setTimeout(pollStatus, 2000);
+                
+            } catch (error) {
+                status.textContent = 'Error: ' + error.message;
+                status.classList.remove('loading');
+            }
+        });
+        
+        // Initialize charts
+        {% for company in companies %}
+        {% if company.stock_data %}
+        (function() {
+            const ctx = document.getElementById('chart-{{ company.symbol }}').getContext('2d');
+            const data = {{ company.stock_data | tojson }};
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.map(d => d.date),
+                    datasets: [{
+                        data: data.map(d => d.close),
+                        borderColor: '#00ff88',
+                        backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            display: false
+                        },
+                        y: {
+                            display: false
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            });
+        })();
+        {% endif %}
+        {% endfor %}
+    </script>
+</body>
+</html>
