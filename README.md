@@ -175,10 +175,6 @@ company-intelligence-platform/
 ## Setup & Installation
 
 ```bash
-# Clone repository
-git clone https://github.com/your-repo/company-intelligence-platform
-cd company-intelligence-platform
-
 # Create virtual environment
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
