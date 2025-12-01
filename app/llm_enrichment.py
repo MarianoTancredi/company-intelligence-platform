@@ -69,7 +69,7 @@ Be objective and focused on financial/market implications. Only return valid JSO
 
     try:
         response = client.messages.create(
-            model="claude-3-5-sonnet-20241022",
+            model="claude-sonnet-4-20250514",
             max_tokens=1024,
             messages=[
                 {"role": "user", "content": prompt}
@@ -137,7 +137,7 @@ Write a 2-3 sentence summary highlighting the company's current market position 
 
     try:
         response = client.messages.create(
-            model="claude-3-5-sonnet-20241022",
+            model="claude-sonnet-4-20250514",
             max_tokens=300,
             messages=[
                 {"role": "user", "content": prompt}
